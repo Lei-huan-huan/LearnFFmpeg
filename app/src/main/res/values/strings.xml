@@ -1,0 +1,15 @@
+<resources>
+    <string name="app_name">LearnFFmpeg</string>
+    <string name="app_tagline">基于 FFmpeg 的极简播放器</string>
+    <string name="hint_url">输入播放地址 (rtmp / https / file)</string>
+    <string name="btn_pick_file">选择文件</string>
+    <string name="btn_play">播放</string>
+    <string name="btn_stop">停止</string>
+    <string name="status_idle">空闲，请输入或选择视频</string>
+    <string name="status_preparing">准备中…</string>
+    <string name="status_playing">正在播放</string>
+    <string name="status_completed">播放完成</string>
+    <string name="status_error">出错了</string>
+    <string name="label_resolution">分辨率</string>
+    <string name="label_duration">时长</string>
+</resources>

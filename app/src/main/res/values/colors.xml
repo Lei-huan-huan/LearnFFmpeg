@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+
+    <!-- Brand palette: indigo / purple gradient -->
+    <color name="brand_primary">#FF6750A4</color>
+    <color name="brand_primary_dark">#FF4F378B</color>
+    <color name="brand_secondary">#FF625B71</color>
+    <color name="brand_tertiary">#FF7D5260</color>
+
+    <!-- Light surfaces -->
+    <color name="bg_app_light">#FFF6F4FB</color>
+    <color name="surface_card_light">#FFFFFFFF</color>
+    <color name="text_primary_light">#FF1C1B1F</color>
+    <color name="text_secondary_light">#FF49454F</color>
+
+    <!-- Dark surfaces -->
+    <color name="bg_app_dark">#FF101014</color>
+    <color name="surface_card_dark">#FF1E1B26</color>
+    <color name="text_primary_dark">#FFE6E1E5</color>
+    <color name="text_secondary_dark">#FFB8B5BE</color>
+
+    <!-- Status colors -->
+    <color name="status_idle">#FF6B7280</color>
+    <color name="status_playing">#FF22C55E</color>
+    <color name="status_preparing">#FFF59E0B</color>
+    <color name="status_error">#FFEF4444</color>
+</resources>
