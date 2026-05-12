@@ -78,4 +78,4 @@
 
 ## 给开发者看的（不懂技术可以跳过）
 
-这是一个基于 **FFmpeg** 的 Android 学习项目，用 C++ 实现了解码 / 渲染 / 音频播放，UI 部分用 Kotlin + Jetpack Compose。代码主要在 `app/src/main/cpp/` 和 `app/src/main/java/` 下。
+这是一个基于 **FFmpeg** 的 Android 学习项目，用 C++ 实现了解码 / 渲染 / 音频播放，UI 部分用 Kotlin + 传统 XML 布局。代码主要在 `app/src/main/cpp/` 和 `app/src/main/java/` 下。
