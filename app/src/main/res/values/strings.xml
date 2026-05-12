@@ -8,6 +8,7 @@
     <string name="status_idle">空闲，请输入或选择视频</string>
     <string name="status_preparing">准备中…</string>
     <string name="status_playing">正在播放</string>
+    <string name="status_paused">已暂停（应用退到后台）</string>
     <string name="status_completed">播放完成</string>
     <string name="status_error">出错了</string>
     <string name="label_resolution">分辨率</string>

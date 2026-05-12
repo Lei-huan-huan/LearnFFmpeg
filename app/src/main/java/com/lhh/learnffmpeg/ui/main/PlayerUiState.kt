@@ -13,6 +13,7 @@ enum class PlayStatus {
     Idle,
     Preparing,
     Playing,
+    Paused,
     Completed,
     Error,
 }

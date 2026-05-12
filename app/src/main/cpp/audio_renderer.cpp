@@ -117,6 +117,16 @@ void AudioRenderer::enqueue(const uint8_t* data, size_t bytes) {
     }
 }
 
+void AudioRenderer::setPaused(bool paused) {
+    if (playItf_ == nullptr) return;
+    SLuint32 state = paused ? SL_PLAYSTATE_PAUSED : SL_PLAYSTATE_PLAYING;
+    SLresult res = (*playItf_)->SetPlayState(playItf_, state);
+    if (res != SL_RESULT_SUCCESS) {
+        LOGE("SetPlayState(%s) failed: %d",
+             paused ? "PAUSED" : "PLAYING", res);
+    }
+}
+
 void AudioRenderer::onBufferDone(SLAndroidSimpleBufferQueueItf, void* ctx) {
     static_cast<AudioRenderer*>(ctx)->handleBufferDone();
 }

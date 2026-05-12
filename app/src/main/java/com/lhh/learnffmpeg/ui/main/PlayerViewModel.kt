@@ -103,6 +103,25 @@ class PlayerViewModel @Inject constructor(
         _uiState.update { it.copy(status = PlayStatus.Idle) }
     }
 
+    /**
+     * Called when the host Activity goes into the background.
+     * Only pauses if a playback is currently in progress; preserves the
+     * underlying native playback so [onEnterForeground] can resume it.
+     */
+    fun onLeaveForeground() {
+        val status = _uiState.value.status
+        if (status != PlayStatus.Playing && status != PlayStatus.Preparing) return
+        repository.pause()
+        _uiState.update { it.copy(status = PlayStatus.Paused) }
+    }
+
+    /** Called when the host Activity returns to the foreground. */
+    fun onEnterForeground() {
+        if (_uiState.value.status != PlayStatus.Paused) return
+        repository.resume()
+        _uiState.update { it.copy(status = PlayStatus.Playing) }
+    }
+
     override fun onCleared() {
         super.onCleared()
         playJob?.cancel()

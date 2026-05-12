@@ -85,12 +85,58 @@ void FfPlayer::start(const std::string& url) {
     stop();
     url_ = url;
     running_ = true;
+    paused_ = false;
     worker_ = std::thread([this] { playLoop(); });
 }
 
 void FfPlayer::stop() {
     running_ = false;
+    // Wake the playback thread in case it is blocked in waitWhilePaused().
+    {
+        std::lock_guard<std::mutex> lk(pauseMutex_);
+        paused_ = false;
+    }
+    pauseCv_.notify_all();
+    if (audioRenderer_) audioRenderer_->setPaused(false);
     if (worker_.joinable()) worker_.join();
+}
+
+void FfPlayer::pause() {
+    if (!running_.load()) return;
+    {
+        std::lock_guard<std::mutex> lk(pauseMutex_);
+        if (paused_.load()) return;
+        paused_ = true;
+    }
+    // Silence audio output immediately. The audio decoder side will block on
+    // enqueue() once the OpenSL queue saturates, providing natural back-pressure.
+    if (audioRenderer_) audioRenderer_->setPaused(true);
+    LOGI("FfPlayer paused");
+}
+
+void FfPlayer::resume() {
+    if (!running_.load()) return;
+    {
+        std::lock_guard<std::mutex> lk(pauseMutex_);
+        if (!paused_.load()) return;
+        paused_ = false;
+    }
+    pauseCv_.notify_all();
+    if (audioRenderer_) audioRenderer_->setPaused(false);
+    LOGI("FfPlayer resumed");
+}
+
+void FfPlayer::waitWhilePaused() {
+    std::unique_lock<std::mutex> lk(pauseMutex_);
+    if (!paused_.load() || !running_.load()) return;
+    int64_t pauseBeganUs = av_gettime();
+    pauseCv_.wait(lk, [this] {
+        return !paused_.load() || !running_.load();
+    });
+    // Shift the video pacing anchor forward so frame deadlines stay aligned
+    // with the user's perceived clock instead of catching up in a burst.
+    int64_t pausedUs = av_gettime() - pauseBeganUs;
+    if (pausedUs > 0) startWallUs_ += pausedUs;
 }
 
 JNIEnv* FfPlayer::attachCurrentThread(bool* attached) {
@@ -353,11 +399,14 @@ void FfPlayer::playLoop() {
     notifyPrepared(width, height, durationMs);
 
     AVRational vtb = videoStream->time_base;
-    int64_t startWallUs = av_gettime();
+    startWallUs_ = av_gettime();
     int64_t startPtsUs = AV_NOPTS_VALUE;
 
     bool reached_eof = false;
     while (running_) {
+        waitWhilePaused();
+        if (!running_) break;
+
         ret = av_read_frame(fmtCtx, packet);
         if (ret == AVERROR_EOF) {
             reached_eof = true;
@@ -391,15 +440,20 @@ void FfPlayer::playLoop() {
                     int64_t ptsUs = av_rescale_q(pts, vtb, AVRational{1, 1000000});
                     if (startPtsUs == AV_NOPTS_VALUE) {
                         startPtsUs = ptsUs;
-                        startWallUs = av_gettime();
+                        startWallUs_ = av_gettime();
                     } else {
-                        int64_t target = startWallUs + (ptsUs - startPtsUs);
+                        int64_t target = startWallUs_ + (ptsUs - startPtsUs);
                         int64_t wait = target - av_gettime();
                         if (wait > 0 && wait < 1'000'000) {
                             std::this_thread::sleep_for(std::chrono::microseconds(wait));
                         }
                     }
                 }
+
+                // A pause may arrive between two decoded frames; honour it
+                // before pushing the next one to the surface.
+                waitWhilePaused();
+                if (!running_) break;
 
                 renderFrame(rgba, width, height);
                 av_frame_unref(vframe);

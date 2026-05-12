@@ -30,6 +30,10 @@ class AudioRenderer {
 
     void enqueue(const uint8_t* data, size_t bytes);
 
+    // Pause/resume OpenSL playback. Buffer-done callbacks pause naturally
+    // when paused, which back-pressures the audio decoder via enqueue().
+    void setPaused(bool paused);
+
     // Approximate playback time in microseconds since playback started.
     int64_t playedUs() const { return playedUs_.load(); }
 

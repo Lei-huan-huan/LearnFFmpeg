@@ -82,6 +82,16 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    override fun onStart() {
+        super.onStart()
+        viewModel.onEnterForeground()
+    }
+
+    override fun onStop() {
+        viewModel.onLeaveForeground()
+        super.onStop()
+    }
+
     private fun renderState(state: PlayerUiState) {
         if (binding.editUrl.text?.toString() != state.url) {
             binding.editUrl.setText(state.url)
@@ -94,6 +104,7 @@ class MainActivity : AppCompatActivity() {
             PlayStatus.Idle -> R.color.status_idle
             PlayStatus.Preparing -> R.color.status_preparing
             PlayStatus.Playing -> R.color.status_playing
+            PlayStatus.Paused -> R.color.status_preparing
             PlayStatus.Completed -> R.color.status_idle
             PlayStatus.Error -> R.color.status_error
         }
@@ -218,6 +229,7 @@ class MainActivity : AppCompatActivity() {
         PlayStatus.Idle -> getString(R.string.status_idle)
         PlayStatus.Preparing -> getString(R.string.status_preparing)
         PlayStatus.Playing -> getString(R.string.status_playing)
+        PlayStatus.Paused -> getString(R.string.status_paused)
         PlayStatus.Completed -> getString(R.string.status_completed)
         PlayStatus.Error -> error ?: getString(R.string.status_error)
     }

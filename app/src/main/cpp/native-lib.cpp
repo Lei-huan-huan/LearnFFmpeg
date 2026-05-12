@@ -43,6 +43,16 @@ void nativeStop(JNIEnv* /* env */, jobject /* thiz */, jlong handle) {
     if (player != nullptr) player->stop();
 }
 
+void nativePause(JNIEnv* /* env */, jobject /* thiz */, jlong handle) {
+    auto* player = asPlayer(handle);
+    if (player != nullptr) player->pause();
+}
+
+void nativeResume(JNIEnv* /* env */, jobject /* thiz */, jlong handle) {
+    auto* player = asPlayer(handle);
+    if (player != nullptr) player->resume();
+}
+
 void nativeRelease(JNIEnv* /* env */, jobject /* thiz */, jlong handle) {
     auto* player = asPlayer(handle);
     delete player;
@@ -53,6 +63,8 @@ const JNINativeMethod kMethods[] = {
         {"nativeSetSurface", "(JLandroid/view/Surface;)V",          reinterpret_cast<void*>(nativeSetSurface)},
         {"nativeStart",      "(JLjava/lang/String;)V",              reinterpret_cast<void*>(nativeStart)},
         {"nativeStop",       "(J)V",                                reinterpret_cast<void*>(nativeStop)},
+        {"nativePause",      "(J)V",                                reinterpret_cast<void*>(nativePause)},
+        {"nativeResume",     "(J)V",                                reinterpret_cast<void*>(nativeResume)},
         {"nativeRelease",    "(J)V",                                reinterpret_cast<void*>(nativeRelease)},
 };
 

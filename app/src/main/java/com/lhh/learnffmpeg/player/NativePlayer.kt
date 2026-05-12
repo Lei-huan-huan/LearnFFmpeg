@@ -45,6 +45,14 @@ class NativePlayer {
         if (nativeHandle != 0L) nativeStop(nativeHandle)
     }
 
+    fun pause() {
+        if (nativeHandle != 0L) nativePause(nativeHandle)
+    }
+
+    fun resume() {
+        if (nativeHandle != 0L) nativeResume(nativeHandle)
+    }
+
     fun release() {
         if (nativeHandle != 0L) {
             nativeRelease(nativeHandle)
@@ -74,6 +82,8 @@ class NativePlayer {
     private external fun nativeSetSurface(handle: Long, surface: Surface?)
     private external fun nativeStart(handle: Long, url: String)
     private external fun nativeStop(handle: Long)
+    private external fun nativePause(handle: Long)
+    private external fun nativeResume(handle: Long)
     private external fun nativeRelease(handle: Long)
 
     companion object {

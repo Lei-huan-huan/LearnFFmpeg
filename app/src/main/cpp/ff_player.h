@@ -6,6 +6,7 @@
 #include <android/native_window_jni.h>
 
 #include <atomic>
+#include <condition_variable>
 #include <memory>
 #include <mutex>
 #include <string>
@@ -34,11 +35,17 @@ class FfPlayer {
     void setSurface(JNIEnv* env, jobject surface);
     void start(const std::string& url);
     void stop();
+    void pause();
+    void resume();
 
  private:
     void playLoop();
     void renderFrame(AVFrame* rgbaFrame, int width, int height);
     void decodeAndPushAudio(AVCodecContext* audioCtx, AVPacket* packet, AVFrame* frame);
+
+    // Blocks while paused_ is set. Adjusts startWallUs_ on exit so the
+    // existing audio/video sync formula keeps producing correct deadlines.
+    void waitWhilePaused();
 
     void notifyPrepared(int width, int height, long durationMs);
     void notifyError(int code, const std::string& message);
@@ -60,6 +67,16 @@ class FfPlayer {
     std::atomic<bool> running_{false};
     std::thread worker_;
     std::string url_;
+
+    // Pause state. Guarded together with pauseCv_ so a stop() also wakes the
+    // playback thread immediately when it happens to be waiting.
+    std::atomic<bool> paused_{false};
+    std::mutex pauseMutex_;
+    std::condition_variable pauseCv_;
+
+    // Wall-clock anchor used by video pacing. Promoted to a member so the
+    // pause helper can shift it forward by the pause duration on resume.
+    int64_t startWallUs_ = 0;
 
     // Audio side
     std::unique_ptr<AudioRenderer> audioRenderer_;

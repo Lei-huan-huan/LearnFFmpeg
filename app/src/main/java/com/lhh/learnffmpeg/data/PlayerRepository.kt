@@ -28,6 +28,10 @@ class PlayerRepository @Inject constructor() {
 
     fun stop() = player.stop()
 
+    fun pause() = player.pause()
+
+    fun resume() = player.resume()
+
     fun release() = player.release()
 
     /**
